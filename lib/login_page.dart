@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:club/sign_up.dart';
 import 'package:flutter/material.dart';
-import './allusers.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -11,12 +10,16 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  CollectionReference users = FirebaseFirestore.instance.collection('users');
+  CollectionReference students =
+      FirebaseFirestore.instance.collection('students');
+  CollectionReference clubs = FirebaseFirestore.instance.collection('clubs');
   TextEditingController emailController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
-
+  TextEditingController studentValueController = new TextEditingController();
+  TextEditingController clubValueController = new TextEditingController();
   int _radioValue = 0;
   String role = "Student";
+  String roleValueName = "";
 
   void _handleRadioValueChange(int value) {
     //0 denotes Student
@@ -113,6 +116,41 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               ),
+              _radioValue == 0
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: EdgeInsets.all(12),
+                        child: TextFormField(
+                          controller: studentValueController,
+                          decoration: InputDecoration(
+                            labelText: "Student Name",
+                            hintText: "Enter your name ",
+                          ),
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: EdgeInsets.all(12),
+                        child: TextFormField(
+                          controller: clubValueController,
+                          decoration: InputDecoration(
+                            labelText: "Club Name",
+                            hintText: "Enter the Club's name ",
+                          ),
+                        ),
+                      ),
+                    ),
               ButtonTheme(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30)),
@@ -127,27 +165,27 @@ class _LoginPageState extends State<LoginPage> {
                                 email: emailController.text,
                                 password: passwordController.text);
                         if (_radioValue == 0) {
-                          var usersType =
-                              users.doc("students").collection("students");
-                          usersType
-                              .add({
-                                'name': userCredential.user.displayName,
+                          roleValueName = studentValueController.text;
+                          students
+                              .doc(userCredential.user.email)
+                              .set({
+                                'name': roleValueName,
                                 'email': userCredential.user.email, // John Doe
                                 'uid': userCredential.user.uid,
-                                'type': role // Stokes and Sons // 42
+                                'type': role,
                               })
                               .then((value) => print("User Added"))
                               .catchError((error) =>
                                   print("Failed to add user: $error"));
                         } else {
-                          var usersType =
-                              users.doc("clubs").collection("clubs");
-                          usersType
-                              .add({
-                                'name': userCredential.user.displayName,
+                          roleValueName = clubValueController.text;
+                          clubs
+                              .doc(userCredential.user.email)
+                              .set({
+                                'name': roleValueName,
                                 'email': userCredential.user.email, // John Doe
                                 'uid': userCredential.user.uid,
-                                'type': role // Stokes and Sons // 42
+                                'type': role,
                               })
                               .then((value) => print("User Added"))
                               .catchError((error) =>
@@ -173,28 +211,29 @@ class _LoginPageState extends State<LoginPage> {
               Container(
                 width: double.infinity,
                 child: Center(
-                    child: Text(
-                  "Already a user? Login Here",
-                  style: TextStyle(fontSize: 15),
-                )),
-              ),
-              ButtonTheme(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: RaisedButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return SignUpPage();
-                      }));
-                    },
-                    elevation: 5.0,
-                    color: Colors.blue,
-                    textColor: Colors.white,
-                    child: Text('Login'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Already a user?  ",
+                        style: TextStyle(fontSize: 15),
+                      ),
+                      GestureDetector(
+                        child: Text(
+                          "Login Here",
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontSize: 15,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return SignUpPage();
+                          }));
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
