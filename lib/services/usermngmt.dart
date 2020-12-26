@@ -33,23 +33,24 @@ class UserManagement {
     FirebaseAuth.instance.signOut();
   }
 
-  authorizeAdmin(BuildContext context) {
-    var user = FirebaseAuth.instance.currentUser;
-    FirebaseFirestore.instance
-        .collection("users")
-        .where("uid", isEqualTo: user.uid)
-        .get()
-        .then((cloudDocs) {
-      if (cloudDocs.docs[0].exists) {
-        if (cloudDocs.docs[0].data()["role"] == 'admin') {
-          Navigator.push(
-              context,
-              new MaterialPageRoute(
-                  builder: (BuildContext context) => new AdminPage()));
-        } else {
-          print('Not Authorized');
-        }
-      }
-    });
-  }
+  // authorizeAdmin(BuildContext context) {
+  //   var user = FirebaseAuth.instance.currentUser;
+
+  //   FirebaseFirestore.instance
+  //       .collection("users")
+  //       .where("uid", isEqualTo: user.uid)
+  //       .get()
+  //       .then((cloudDocs) {
+  //     if (cloudDocs.docs[0].exists) {
+  //       if (cloudDocs.docs[0].data()["role"] == 'admin') {
+  //         Navigator.push(
+  //             context,
+  //             new MaterialPageRoute(
+  //                 builder: (BuildContext context) => new AdminPage()));
+  //       } else {
+  //         print('Not Authorized');
+  //       }
+  //     }
+  //   });
+  // }
 }

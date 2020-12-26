@@ -15,51 +15,54 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-        appBar: AppBar(
-          title: Text('Dashboard'),
-          centerTitle: true,
-        ),
-        drawer: Drawer(
-          child: ListView(
-            children: <Widget>[
-              new UserAccountsDrawerHeader(
-                accountName: new Text('Raja'),
-                accountEmail: new Text('testemail@test.com'),
-                currentAccountPicture: new CircleAvatar(
-                  backgroundImage: new NetworkImage('http://i.pravatar.cc/300'),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+          appBar: AppBar(
+            bottom: TabBar(
+              onTap: (index) {
+                // Tab index when user select it, it start from zero
+              },
+              tabs: [
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text("Tasks"),
                 ),
-              ),
-              new ListTile(
-                title: new Text('Allusers Page'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.push(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              new AllUsersPage()));
-                },
-              ),
-              new ListTile(
-                title: new Text('Admins only'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  userObj.authorizeAdmin(context);
-                },
-              ),
-              new ListTile(
-                title: new Text('Logout', style: TextStyle(color: Colors.red)),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  userObj.signOut();
-                },
-              ),
+                Text("Feed"),
+                Text("Clubs")
+              ],
+            ),
+            title: Text('Scheduler'),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                    onTap: () {
+                      userObj.signOut();
+                    },
+                    child: Icon(Icons.logout)),
+              )
             ],
           ),
-        ),
-        body: Center(
-          child: Text('All Users Dashboard'),
-        ));
+          body: TabBarView(
+            children: [
+              Center(
+                  child: Text(
+                "Tasks",
+                style: TextStyle(fontSize: 40),
+              )),
+              Center(
+                  child: Text(
+                "Feed",
+                style: TextStyle(fontSize: 40),
+              )),
+              Center(
+                  child: Text(
+                "Clubs",
+                style: TextStyle(fontSize: 40),
+              )),
+            ],
+          )),
+    );
   }
 }
