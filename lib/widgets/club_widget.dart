@@ -1,15 +1,48 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 
 class ClubWidget extends StatefulWidget {
   bool isSubscribed;
   final String clubName;
   final String subClubName;
-  ClubWidget({this.isSubscribed, this.clubName, this.subClubName});
+  final String collectionName;
+  final String emailToSubscribe;
+  final String email;
+  ClubWidget(
+      {this.isSubscribed,
+      this.clubName,
+      this.subClubName,
+      this.collectionName,
+      this.email,
+      this.emailToSubscribe});
   @override
   _ClubWidgetState createState() => _ClubWidgetState();
 }
 
 class _ClubWidgetState extends State<ClubWidget> {
+  void addSubscriptions({
+    String email,
+    String emailToSubscribe,
+  }) {
+    if (widget.isSubscribed == true) {
+      FirebaseFirestore.instance
+          .collection(widget.collectionName)
+          .doc(email)
+          .collection("subscriptions")
+          .doc(emailToSubscribe)
+          .set({
+        "subscribedEmail": emailToSubscribe,
+      });
+    } else {
+      FirebaseFirestore.instance
+          .collection(widget.collectionName)
+          .doc(email)
+          .collection("subscriptions")
+          .doc(emailToSubscribe)
+          .delete();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -24,6 +57,9 @@ class _ClubWidgetState extends State<ClubWidget> {
             onTap: () {
               setState(() {
                 widget.isSubscribed = !widget.isSubscribed;
+                addSubscriptions(
+                    email: widget.email,
+                    emailToSubscribe: widget.emailToSubscribe);
               });
             },
             child: Icon(

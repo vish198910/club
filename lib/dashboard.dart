@@ -14,6 +14,8 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   UserManagement userObj = new UserManagement();
+  TextEditingController reminderTextController = new TextEditingController();
+  TextEditingController contentController = new TextEditingController();
   String userType = "";
   String userName = "";
   String collectionName = "";
@@ -21,6 +23,10 @@ class _DashboardPageState extends State<DashboardPage> {
   int numberOfStudents = 0;
   List clubs;
   List students;
+  int indexOfScreen = 0;
+
+  DateTime startDate = DateTime.now();
+  DateTime endDate = DateTime.now();
 
   void fetchUserInformation() async {
     students = await FirebaseFirestore.instance
@@ -59,8 +65,11 @@ class _DashboardPageState extends State<DashboardPage> {
         .get()
         .then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
-        userType = documentSnapshot.data()["type"];
-        userName = documentSnapshot.data()["name"];
+        setState(() {
+          userType = documentSnapshot.data()["type"];
+          userName = documentSnapshot.data()["name"];
+        });
+
         print('Document data: ${documentSnapshot.data()}');
       } else {
         print('Document does not exist on the database');
@@ -70,7 +79,50 @@ class _DashboardPageState extends State<DashboardPage> {
     setState(() {});
   }
 
-  void addTask() {}
+  _selectStartDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+      context: context,
+      initialDate: startDate, // Refer step 1
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2025),
+    );
+    if (picked != null && picked != startDate)
+      setState(() {
+        startDate = picked;
+      });
+  }
+
+  _selectEndDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+      context: context,
+      initialDate: endDate, // Refer step 1
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2025),
+    );
+    if (picked != null && picked != endDate)
+      setState(() {
+        endDate = picked;
+      });
+  }
+
+  void addPost({
+    String email,
+    DateTime startDateTime,
+    DateTime endDateTime,
+    String subject,
+    String content,
+  }) {
+    FirebaseFirestore.instance
+        .collection(collectionName)
+        .doc(email)
+        .collection("posts")
+        .add({
+      "startDateTime": startDateTime,
+      "endDateTime": endDateTime,
+      "subject": subject,
+      "content": content,
+    });
+  }
 
   @override
   void initState() {
@@ -83,126 +135,218 @@ class _DashboardPageState extends State<DashboardPage> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-          appBar: AppBar(
-            bottom: TabBar(
-              onTap: (index) {
-                // Tab index when user select it, it start from zero
-              },
-              tabs: [
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(
-                    "Tasks",
-                    style: TextStyle(fontSize: 15),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(
-                    "Feed",
-                    style: TextStyle(fontSize: 15),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(
-                    "Clubs",
-                    style: TextStyle(fontSize: 15),
-                  ),
-                )
-              ],
-            ),
-            title: ListTile(
-              title: Text(
-                "Scheduler",
-                style: TextStyle(fontSize: 20, color: Colors.white),
-              ),
-              subtitle: Text(
-                userName + " ( " + userType + " ) ",
-                style: TextStyle(fontSize: 10, color: Colors.white),
-              ),
-            ),
-            actions: [
+        appBar: AppBar(
+          bottom: TabBar(
+            onTap: (index) {
+              // Tab index when user select it, it start from zero
+              setState(() {
+                indexOfScreen = index;
+              });
+            },
+            tabs: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: GestureDetector(
-                    onTap: () {
-                      userObj.signOut();
-                    },
-                    child: Icon(Icons.logout)),
+                padding: const EdgeInsets.all(10.0),
+                child: Text(
+                  "Tasks",
+                  style: TextStyle(fontSize: 15),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(
+                  "Feed",
+                  style: TextStyle(fontSize: 15),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(
+                  "Clubs",
+                  style: TextStyle(fontSize: 15),
+                ),
               )
             ],
           ),
-          body: TabBarView(
-            children: [
-              Center(
-                  child: Text(
-                "Add Tasks",
-                style: TextStyle(fontSize: 40),
-              )),
-              Center(
-                  child: Text(
-                "Feed",
-                style: TextStyle(fontSize: 40),
-              )),
-              Center(
-                  child: ClubPostsWidget(
-                      numberOfClubs: numberOfClubs, clubs: clubs)),
-            ],
+          title: ListTile(
+            title: Text(
+              "Scheduler",
+              style: TextStyle(fontSize: 20, color: Colors.white),
+            ),
+            subtitle: Text(
+              userName + " ( " + userType + " ) ",
+              style: TextStyle(fontSize: 10, color: Colors.white),
+            ),
           ),
-          floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add),
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return Dialog(
-                      shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(20.0)), //this right here
-                      child: Container(
-                        height: 200,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextField(
-                                decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'What do you want to remember?'),
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: GestureDetector(
+                  onTap: () {
+                    userObj.signOut();
+                  },
+                  child: Icon(Icons.logout)),
+            )
+          ],
+        ),
+        body: TabBarView(
+          children: [
+            Center(
+                child: Text(
+              "Add Tasks",
+              style: TextStyle(fontSize: 40),
+            )),
+            Center(
+                child: Text(
+              "Feed",
+              style: TextStyle(fontSize: 40),
+            )),
+            Center(
+              child: ClubPostsWidget(
+                numberOfClubs: numberOfClubs,
+                clubs: clubs,
+                email: widget.data.email,
+                collectionName: collectionName,
+              ),
+            ),
+          ],
+        ),
+        floatingActionButton: indexOfScreen == 0
+            ? FloatingActionButton(
+                child: Icon(Icons.add),
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  20.0)), //this right here
+                          child: Container(
+                            height:
+                                (3 * MediaQuery.of(context).size.height) / 4,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: ListView(
                                 children: [
-                                  RaisedButton(
-                                    onPressed: () {},
-                                    child: Text(
-                                      "Close",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    color: Colors.blue,
+                                  Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Container(
+                                          padding: EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            border:
+                                                Border.all(color: Colors.black),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: TextFormField(
+                                            controller: reminderTextController,
+                                            decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                labelText: "Reminder Subject",
+                                                hintText:
+                                                    'What do you want to remember?'),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Container(
+                                          padding: EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            border:
+                                                Border.all(color: Colors.black),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: TextFormField(
+                                            maxLines: 8,
+                                            controller: contentController,
+                                            decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                labelText: "Reminder Content",
+                                                hintText:
+                                                    'What do you want to remember?'),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  RaisedButton(
-                                    onPressed: () {},
-                                    child: Text(
-                                      "Save",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    color: Colors.blue,
-                                  )
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      RaisedButton(
+                                        // Refer step 3
+
+                                        child: Text(
+                                          'Select start date',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        color: Colors.blue,
+                                        onPressed: () {
+                                          _selectStartDate(context);
+                                        },
+                                      ),
+                                      RaisedButton(
+                                        // Refer step 3
+                                        child: Text(
+                                          'Select end date',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        color: Colors.blue,
+                                        onPressed: () {
+                                          _selectEndDate(context);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      RaisedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text(
+                                          "Close",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        color: Colors.blue,
+                                      ),
+                                      RaisedButton(
+                                        onPressed: () {
+                                          addPost(
+                                              email: widget.data.email,
+                                              startDateTime: startDate,
+                                              endDateTime: endDate,
+                                              subject:
+                                                  reminderTextController.text,
+                                              content: contentController.text);
+                                        },
+                                        child: Text(
+                                          "Save",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        color: Colors.blue,
+                                      )
+                                    ],
+                                  ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  });
-            },
-          )),
+                        );
+                      });
+                },
+              )
+            : Container(),
+      ),
     );
   }
 }

@@ -2,14 +2,18 @@ import 'package:club/widgets/club_widget.dart';
 import "package:flutter/material.dart";
 
 class ClubPostsWidget extends StatelessWidget {
-  const ClubPostsWidget({
-    Key key,
-    @required this.numberOfClubs,
-    @required this.clubs,
-  }) : super(key: key);
+  const ClubPostsWidget(
+      {Key key,
+      @required this.numberOfClubs,
+      @required this.clubs,
+      @required this.email,
+      @required this.collectionName})
+      : super(key: key);
 
   final int numberOfClubs;
   final List clubs;
+  final String email;
+  final String collectionName;
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +25,9 @@ class ClubPostsWidget extends StatelessWidget {
             isSubscribed: false,
             clubName: clubs[index].data()["name"],
             subClubName: clubs[index].data()["email"],
+            email: email,
+            collectionName: collectionName,
+            emailToSubscribe: clubs[index].data()["email"],
           );
         } else if (numberOfClubs <= 0) {
           return Container(
