@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:club/screens/club_posts_widget.dart';
+import 'package:club/screens/task_screen.dart';
 import 'package:club/widgets/club_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -191,15 +192,17 @@ class _DashboardPageState extends State<DashboardPage> {
         body: TabBarView(
           children: [
             Center(
-                child: Text(
-              "Add Tasks",
-              style: TextStyle(fontSize: 40),
-            )),
+              child: TaskScreen(
+                email: widget.data.email,
+                collectionName: collectionName,
+              ),
+            ),
             Center(
-                child: Text(
-              "Feed",
-              style: TextStyle(fontSize: 40),
-            )),
+              child: Text(
+                "Add Tasks",
+                style: TextStyle(fontSize: 40),
+              ),
+            ),
             Center(
               child: ClubPostsWidget(
                 numberOfClubs: numberOfClubs,

@@ -13,7 +13,6 @@ class UserManagement {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
-          print(snapshot.data);
           currentUser.add(snapshot.data.uid);
           return DashboardPage(
             data: snapshot.data,
