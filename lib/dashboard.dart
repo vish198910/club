@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:club/screens/club_posts_widget.dart';
+import 'package:club/widgets/club_widget.dart';
 import 'package:flutter/material.dart';
 
 import 'services/usermngmt.dart';
@@ -17,8 +19,9 @@ class _DashboardPageState extends State<DashboardPage> {
   String collectionName = "";
   int numberOfClubs = 0;
   int numberOfStudents = 0;
-  var clubs;
-  var students;
+  List clubs;
+  List students;
+
   void fetchUserInformation() async {
     students = await FirebaseFirestore.instance
         .collection('students')
@@ -63,6 +66,8 @@ class _DashboardPageState extends State<DashboardPage> {
         print('Document does not exist on the database');
       }
     });
+
+    setState(() {});
   }
 
   void addTask() {}
@@ -86,10 +91,25 @@ class _DashboardPageState extends State<DashboardPage> {
               tabs: [
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: Text("Tasks"),
+                  child: Text(
+                    "Tasks",
+                    style: TextStyle(fontSize: 15),
+                  ),
                 ),
-                Text("Feed"),
-                Text("Clubs")
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    "Feed",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    "Clubs",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                )
               ],
             ),
             title: ListTile(
@@ -126,27 +146,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 style: TextStyle(fontSize: 40),
               )),
               Center(
-                  child: ListView.builder(
-                itemCount: numberOfClubs,
-                itemBuilder: (BuildContext context, int index) {
-                  if (clubs[index].data()["name"] != null) {
-                    return Container(
-                      child: Center(
-                        child: Text(
-                          clubs[index].data()["name"],
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ),
-                    );
-                  } else if (numberOfClubs <= 0) {
-                    return Container(
-                      child: Text("No Clubs here"),
-                    );
-                  } else {
-                    return Container();
-                  }
-                },
-              )),
+                  child: ClubPostsWidget(
+                      numberOfClubs: numberOfClubs, clubs: clubs)),
             ],
           ),
           floatingActionButton: FloatingActionButton(
