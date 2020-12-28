@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:club/widgets/club_widget.dart';
 import "package:flutter/material.dart";
 
@@ -13,6 +14,41 @@ class ClubPostsWidget extends StatefulWidget {
 }
 
 class _ClubPostsWidgetState extends State<ClubPostsWidget> {
+  List<String> emails = [];
+  Map<String, bool> subscriptions = {};
+  void fetchSubscriptions() async {
+    var subscribedEmails = await FirebaseFirestore.instance
+        .collection(widget.collectionName)
+        .doc(widget.email)
+        .collection("subscriptions")
+        .get()
+        .then((snapshot) {
+      return snapshot.docs;
+    });
+
+    for (int i = 0; i < subscribedEmails.length; i++) {
+      emails.add(subscribedEmails[i].data()["subscribedEmail"]);
+    }
+    setState(() {});
+  }
+
+  bool checkSubscription(String email) {
+    if (emails.contains(email)) {
+      subscriptions.addAll({email: true});
+    } else {
+      subscriptions.addAll({email: false});
+    }
+    print(subscriptions.toString() + email);
+    print(emails);
+    return emails.length == 0 ? false : subscriptions[email];
+  }
+
+  @override
+  void initState() {
+    fetchSubscriptions();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -20,7 +56,8 @@ class _ClubPostsWidgetState extends State<ClubPostsWidget> {
       itemBuilder: (BuildContext context, int index) {
         if (widget.clubs[index].data()["name"] != null) {
           return ClubWidget(
-            isSubscribed: false,
+            isSubscribed:
+                checkSubscription(widget.clubs[index].data()["email"]),
             clubName: widget.clubs[index].data()["name"],
             subClubName: widget.clubs[index].data()["email"],
             email: widget.email,
