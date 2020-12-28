@@ -77,11 +77,28 @@ class _TaskScreenState extends State<TaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: postCollection.length,
-      itemBuilder: (BuildContext context, int index) {
-        return postCollection[index].PostTile();
-      },
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
+            height: 3 * (MediaQuery.of(context).size.height) / 4,
+            child: ListView.builder(
+              itemCount: postCollection.length,
+              itemBuilder: (BuildContext context, int index) {
+                return postCollection[index].PostTile();
+              },
+            ),
+          ),
+          Container(
+            child: RaisedButton(
+              child: Text("Fetch"),
+              onPressed: () {
+                fetchSubsriptionEmails();
+              },
+            ),
+          )
+        ],
+      ),
     );
   }
 }
@@ -95,9 +112,37 @@ class Post {
   Post({this.content, this.endDate, this.startDate, this.subject});
 
   Widget PostTile() {
-    return ListTile(
-      title: Text(subject),
-      subtitle: Text(startDate.toString() + "   " + endDate.toString()),
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: ListTile(
+          trailing: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.notifications_active,
+              color: Colors.red,
+              size: 30,
+            ),
+          ),
+          title: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(subject),
+              ],
+            ),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(startDate.toString() + "   " + endDate.toString()),
+          ),
+        ),
+      ),
     );
   }
 }

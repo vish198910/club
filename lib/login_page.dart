@@ -169,7 +169,8 @@ class _LoginPageState extends State<LoginPage> {
                           students
                               .doc(userCredential.user.email)
                               .set({
-                                'name': roleValueName,
+                                'name': roleValueName[0].toUpperCase() +
+                                    roleValueName.substring(1),
                                 'email': userCredential.user.email, // John Doe
                                 'uid': userCredential.user.uid,
                                 'type': role,

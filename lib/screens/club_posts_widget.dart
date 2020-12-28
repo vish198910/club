@@ -1,35 +1,33 @@
 import 'package:club/widgets/club_widget.dart';
 import "package:flutter/material.dart";
 
-class ClubPostsWidget extends StatelessWidget {
-  const ClubPostsWidget(
-      {Key key,
-      @required this.numberOfClubs,
-      @required this.clubs,
-      @required this.email,
-      @required this.collectionName})
-      : super(key: key);
-
+class ClubPostsWidget extends StatefulWidget {
+  ClubPostsWidget(
+      {this.numberOfClubs, this.clubs, this.email, this.collectionName});
   final int numberOfClubs;
   final List clubs;
   final String email;
   final String collectionName;
+  @override
+  _ClubPostsWidgetState createState() => _ClubPostsWidgetState();
+}
 
+class _ClubPostsWidgetState extends State<ClubPostsWidget> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: numberOfClubs,
+      itemCount: widget.numberOfClubs,
       itemBuilder: (BuildContext context, int index) {
-        if (clubs[index].data()["name"] != null) {
+        if (widget.clubs[index].data()["name"] != null) {
           return ClubWidget(
             isSubscribed: false,
-            clubName: clubs[index].data()["name"],
-            subClubName: clubs[index].data()["email"],
-            email: email,
-            collectionName: collectionName,
-            emailToSubscribe: clubs[index].data()["email"],
+            clubName: widget.clubs[index].data()["name"],
+            subClubName: widget.clubs[index].data()["email"],
+            email: widget.email,
+            collectionName: widget.collectionName,
+            emailToSubscribe: widget.clubs[index].data()["email"],
           );
-        } else if (numberOfClubs <= 0) {
+        } else if (widget.numberOfClubs <= 0) {
           return Container(
             child: Text("No Clubs here"),
           );

@@ -49,7 +49,7 @@ class _ClubWidgetState extends State<ClubWidget> {
       padding: const EdgeInsets.all(10.0),
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.black),
+          border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(20),
         ),
         child: ListTile(
