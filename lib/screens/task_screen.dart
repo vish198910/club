@@ -15,7 +15,7 @@ class _TaskScreenState extends State<TaskScreen> {
   List posts = [];
   List<Post> postCollection = [];
 
-  void fetchSubsriptionEmails() async {
+  void fetchSubsriptionEmails(List<Post> postCollection) async {
     var subscribedEmails = await FirebaseFirestore.instance
         .collection(widget.collectionName)
         .doc(widget.email)
@@ -71,34 +71,17 @@ class _TaskScreenState extends State<TaskScreen> {
 
   @override
   void initState() {
-    fetchSubsriptionEmails();
+    fetchSubsriptionEmails(postCollection);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Container(
-            height: 3 * (MediaQuery.of(context).size.height) / 4,
-            child: ListView.builder(
-              itemCount: postCollection.length,
-              itemBuilder: (BuildContext context, int index) {
-                return postCollection[index].PostTile();
-              },
-            ),
-          ),
-          Container(
-            child: RaisedButton(
-              child: Text("Fetch"),
-              onPressed: () {
-                fetchSubsriptionEmails();
-              },
-            ),
-          )
-        ],
-      ),
+    return ListView.builder(
+      itemCount: postCollection.length,
+      itemBuilder: (BuildContext context, int index) {
+        return postCollection[index].PostTile();
+      },
     );
   }
 }
